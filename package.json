@@ -1,0 +1,22 @@
+{
+  "name": "node-wordnet-JSON",
+  "version": "0.0.0",
+  "description": "node-wordnet-JSON =================",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Planeshifter/node-wordnet-JSON.git"
+  },
+  "author": "Philipp Burckhardt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Planeshifter/node-wordnet-JSON/issues"
+  },
+  "dependencies": {
+    "underscore": "~1.7.0",
+    "underscore.string": "~2.3.3"
+  }
+}

@@ -1,0 +1,173 @@
+@font-face {
+    font-family:'Open Sans', Sans-Serif;
+    src: url('http://fonts.googleapis.com/css?family=Open+Sans:300');
+}
+
+body {
+	font-family:'Open Sans', Sans-Serif;
+	overflow-y: hidden;
+	background-color: lightgrey;
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family:'Open Sans', Sans-Serif;
+}
+
+#main_menu{
+	background-color: #C0C0C0;
+	padding-left: 40px;
+	padding-right: 40px;
+	padding-top: 30px;
+	padding-bottom: 30px;
+	border: 1px solid;
+    border-radius: 10px;
+    border-color: gray;
+}
+
+#spinnerContainer {
+	width: 100%;
+	height: 100%;
+    position: absolute;
+    z-index: 100;
+    background-color: Gray;
+    left: 0;
+    top:  0;
+    bottom: 0;
+    right: 0;
+    display: none;
+}
+
+#plot_menu{
+  display: none;
+}
+
+#back_button{
+	margin-left: 5px;
+  margin-top: 5px;
+}
+
+#save_svg_button{
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.synsetLabels{
+	font-size: 10px;
+	font-family: Arial, Helvetica, sans-serif;
+	-webkit-transform: rotate(45deg);
+	-moz-transform: rotate(45deg);
+	-o-transform: rotate(45deg);
+}
+
+.words{
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  fill: red;
+}
+
+.node div{
+	background-color: darkgray;
+}
+
+#add_document_btn{
+  height: 30px;
+  width: 30px;
+}
+
+#sentence_form{
+	position: relative;
+	width: 50%;
+	border-radius: 4px;
+	 margin: 0 auto 0 auto;
+	background-color: gainsboro;
+  	z-index: 10;
+  	opacity: 1;
+}
+
+#document_holder{
+	background-color: #eee;
+	overflow: scroll;
+    overflow-x: hidden;
+    height: 400px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: gray;
+}
+
+#document_holder textarea{
+	display:block;
+	margin-left: auto;
+	margin-right: auto;
+	position:relative;
+	resize: none;
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 20px;
+}
+
+legend{
+  background-color: gainsboro;
+  padding: 4px;
+  border-left: 1px solid darkgrey;
+  border-right: 1px solid darkgrey;
+  border-top: 1px solid darkgrey;
+  border-bottom: 1px solid darkgrey;
+  color: rgb(32,32,32);
+}
+
+#clear {
+	float: left;
+}
+
+#analyze_button{
+	float: right;
+}
+
+#pruning_input{
+  float: right;
+  height: 45px;
+}
+
+#pruning_treshold{
+ height: 30px;
+ margin-right: 10px;
+ padding-right: 10px;
+ margin-left: -2px;
+}
+
+#pruning_treshold_label{
+  float: left;
+  font-size: 10px;
+  height: 10px;
+}
+
+#analyze {
+	float: right;
+}
+
+path.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: left;
+  width: 300px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
