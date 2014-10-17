@@ -9,7 +9,7 @@ var mergeWordTrees = require("./mergeWordTrees.js");
 var pruneTree = require("./pruneTree.js");
 var mergeDocTrees = require("./mergeDocTrees.js");
 var pickSynsets = require("./pickSynsets.js");
-var propagateWords = require("./propagateWords.js")
+var propagateWords = require("./propagateWords.js");
 
 function createWordNetTree(corpus){
   var wordTreshold = program.threshold || 1;
@@ -54,7 +54,7 @@ program
   .option('-t, --threshold <n>', 'Threshold for Tree Nodes', parseInt)
   .option('-c, --combine','Indicates that document trees should be merged to form corpus tree')
   .parse(process.argv);
-  
+
 var corpus;
 if (program.list){
   corpus = program.list.split(",");

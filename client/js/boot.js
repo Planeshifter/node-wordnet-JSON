@@ -124,14 +124,20 @@ function tree() {
                   str += "Corpus words: " + d.words;
                 	return str; })
                 .on("mouseover", function(d) {
-                  var wordStrings = Object.keys(d.words);
-                  wordStrings = wordStrings.map(function(s){
-                    return s + "(" + d.words[s] + ")";
-                  });
                   var str = "";
                   if (d.words){
+                    var sortable = [];
+                    for (var lemma in d.words){
+                      sortable.push([lemma, d.words[lemma]]);
+                    }
+                    var wordStrings = sortable.sort(function(a,b){
+                      return b[1] - a[1];
+                    });
+                    wordStrings = wordStrings.map(function(s){
+                      return s[0] + "(" + s[1] + ")";
+                    });
                     str += "<strong>Words:</strong> " + wordStrings.join(" , ");
-                    str += "<br\>"
+                    str += "<br\>";
                     str += "<strong>Definition:</strong> " + d.data.definition + "<br\>";
                     str += "<strong>POS</strong>: " + d.data.pos;
                     str += "<br\>";
@@ -149,7 +155,8 @@ function tree() {
                   }
                     div.transition()
                        .duration(200)
-                       .style("opacity", .9);
+                       .style("opacity", 0.9);
+
                     div.html(str)
                        .style("left", (d3.event.pageX) + "px")
                        .style("top", (d3.event.pageY - 100) + "px");
@@ -200,9 +207,10 @@ function tree() {
                     return d.children || d._children ? "end" : "start";
                 })
                 .text(function (d) {
-                	console.log(d.words)
-                    var words =  d.data.words.slice(0, 3).map(function(e){ return e.lemma; });
-                    return words.join(", ");
+                    var words =  d.data.words.map(function(d){
+                      return d.lemma;
+                    });
+                    return words.slice(0, 3).join(", ");
                 })
                 .style("fill-opacity", 1e-6);
 
@@ -407,12 +415,10 @@ var svg = d3.select("body").append("svg")
   var nodes = cluster.nodes(input),
       links = cluster.links(nodes);
 
-  console.log(_nodes)
-
   var link = svg.selectAll(".link")
       .data(links)
       .enter().append("path")
-      .attr("id",function(d){ return d.synsetid })
+      .attr("id",function(d){ return d.synsetid; })
       .attr("class", "link")
       .attr("d", diagonal);
 
@@ -440,7 +446,7 @@ $(function() {
   $body = $("body");
   $body.append("<div id='spinnerContainer'></div>");
   $spinnerContainer = $("#spinnerContainer");
-  $spinnerContainer.append("<div id='spinner'></div>")
+  $spinnerContainer.append("<div id='spinner'></div>");
   $("#spinner").append("<div id='loader'></div>");
 
   $("#analyze_button").on("click", function(){
@@ -458,6 +464,6 @@ $(function() {
     clearSentence();
     $("#plot_menu").hide();
     $(".row").fadeIn("normal");
-  })
+  });
 
 });
