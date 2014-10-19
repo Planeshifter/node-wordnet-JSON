@@ -39,6 +39,7 @@ h1, h2, h3, h4, h5, h6{
 
 #plot_menu{
   display: none;
+  position: fixed;
 }
 
 #back_button{
@@ -132,6 +133,15 @@ legend{
 	float: right;
 }
 
+#color_legend{
+    position:fixed;
+    right:5px;
+    top:5px;
+    width:10%;
+    color: black;
+    display: none;
+}
+
 #pruning_input{
   float: right;
   height: 45px;
@@ -156,7 +166,6 @@ legend{
 
 path.link {
     fill: none;
-    stroke: #ccc;
     stroke-width: 1.5px;
 }
 
@@ -170,4 +179,28 @@ div.tooltip {
   border: 0px;
   border-radius: 8px;
   pointer-events: none;
+}
+
+.color-box {
+    width: 8px;
+    height: 8px;
+    display: inline-block;
+    background-color: #ccc;
+    position: relative;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+div .legend-item{
+  display: none;
+  cursor: pointer;
+}
+
+div .legend-item:hover{
+  background-color: rgba(246, 140, 54, 0.91);
+}
+
+.legend-label{
+  display:inline;
+  font-size: 12px;
 }

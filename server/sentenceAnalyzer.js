@@ -1,12 +1,25 @@
 var BPromise = require("bluebird");
 var util = require("util");
 var _ = require("underscore");
+var arr = require("./array.js");
 
 function walkTree(current, parent){
     if(current.children.length === 1 && parent !== null){
       var child = current.children[0];
       walkTree(child, current);
-      current.flagged = true;
+      if (current.words !== null){
+         var current_word_lemmas = Object.keys(current.words);
+         var current_child_lemmas = current.children.filter(function(c){
+           return c.words !== null;
+         }).map(function(c){
+           return Object.keys(c.words);
+         }).reduce(function(a,b){
+           return a.concat(b);
+         },[]);
+         if (current_word_lemmas.compare(current_child_lemmas)){
+           current.flagged = true;
+         }
+      }
       return;
     }
     if(current.children.length === 0){

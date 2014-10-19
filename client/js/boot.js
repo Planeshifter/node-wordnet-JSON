@@ -1,3 +1,24 @@
+var _topicDomains = ["adj.all","adj.pert","adj.ppl","adv.all",
+  "noun.act","noun.animal","noun.artifact","noun.attribute","noun.body",
+  "noun.cognition","noun.communication","noun.event","noun.feeling",
+  "noun.food","noun.group","noun.linkdef","noun.location",
+  "noun.motive","noun.object","noun.person","noun.phenomenon",
+  "noun.plant","noun.possession","noun.process","noun.quantity",
+  "noun.shape","noun.state","noun.substance","noun.time","noun.tops",
+  "verb.body","verb.change","verb.cognition","verb.communication",
+  "verb.competition","verb.consumption","verb.contact","verb.creation",
+  "verb.emotion","verb.motion","verb.perception","verb.possession",
+  "verb.social","verb.stative","verb.weather"];
+
+var _topicColors = d3.scale.category20b().range()
+.concat(d3.scale.category20c().range())
+.concat(["#2f81c4","#ef3838","#33d035","#9b9392","#17a8a3"]);
+
+var _topicColorScale = d3.scale.ordinal()
+  .domain(_topicDomains)
+  .range(_topicColors);
+
+
 function tree() {
     var _chart = {};
 
@@ -11,9 +32,9 @@ function tree() {
             _bodyG;
 
    function zoom() {
-	 _svg.select(".body").attr("transform", "translate("
-     + d3.event.translate
-     + ")scale(" + d3.event.scale + ")");
+	    _svg.select(".body").attr("transform", "translate(" +
+                                       d3.event.translate +
+                          ")scale(" + d3.event.scale + ")");
    }
 
     _chart.render = function () {
@@ -55,9 +76,8 @@ function tree() {
           _bodyG = svg.append("g")
     				.attr("class", "body")
     				.attr("transform", function (d) {
-    					return "translate(" + _margins.left
-    						+ "," + _margins.top + ")";
-    				})
+    					return "translate(" + _margins.left + "," + _margins.top + ")";
+    				});
         }
 
         _tree = d3.layout.tree()
@@ -98,8 +118,7 @@ function tree() {
         var nodeEnter = node.enter().append("svg:g")
                 .attr("class", "node")
                 .attr("transform", function (d) {
-                    return "translate(" + source.y0
-						+ "," + source.x0 + ")";
+                    return "translate(" + source.y0	  + "," + source.x0 + ")";
                 })
                 .on("click", function (d) {
                     toggle(d);
@@ -107,22 +126,27 @@ function tree() {
                 });
 
     var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+      .attr("class", "tooltip")
+      .style("opacity", 0);
 
         nodeEnter.append("svg:circle")
                 .attr("r", 1e-6)
                 .attr("class","synsetNode")
-                .style("fill", "steelblue")
-                .attr("title",function(d){
-                	var str = "Definition: " + d.data.definition + "<br\>";
-                	str += "POS: " + d.data.pos;
-                	str += "<br\>";
-                	str += "Lexical Domain: " + d.data.lexdomain;
-                  str += "<br\>";
-                  str += "Counter: " + d.count;
-                  str += "Corpus words: " + d.words;
-                	return str; })
+                .style("fill", function(d){
+                  return _topicColorScale(d.data.lexdomain);
+                })
+                .attr("data-topic",function(d){
+                  return d.data.lexdomain.replace(/[.]/g,"-");
+                })
+                .attr("fill-opacity", function(d){
+                  var topic = d.data.lexdomain.replace(/[.]/g,"-");
+                  var status = $("#" + topic).data("status");
+                  if(status === "on"){
+                    return 1;
+                  } else {
+                    return 0.3;
+                  }
+                })
                 .on("mouseover", function(d) {
                   var str = "";
                   if (d.words){
@@ -137,21 +161,25 @@ function tree() {
                       return s[0] + "(" + s[1] + ")";
                     });
                     str += "<strong>Words:</strong> " + wordStrings.join(" , ");
-                    str += "<br\>";
-                    str += "<strong>Definition:</strong> " + d.data.definition + "<br\>";
+                    str += "<br>";
+                    str += "<strong>Definition:</strong> " + d.data.definition + "<br>";
                     str += "<strong>POS</strong>: " + d.data.pos;
-                    str += "<br\>";
+                    str += "<br>";
                     str += "<strong>Lexical Domain:</strong> " + d.data.lexdomain;
-                    str += "<br\>";
-                    str += "<strong>Count:</strong> " + d.count;
+                    str += "<br>";
+                    str += "<strong>Document Count:</strong> " + d.docCount;
+                    str += "<br>";
+                    str += "<strong>Word Count:</strong> " + d.wordCount;
                   }
                   else {
-                    str += "<strong>Definition:</strong> " + d.data.definition + "<br\>";
+                    str += "<strong>Definition:</strong> " + d.data.definition + "<br>";
                     str += "<strong>POS</strong>: " + d.data.pos;
-                    str += "<br\>";
+                    str += "<br>";
                     str += "<strong>Lexical Domain:</strong> " + d.data.lexdomain;
-                    str += "<br\>";
-                    str += "<strong>Count:</strong> " + d.count;
+                    str += "<br>";
+                    str += "<strong>Document Count:</strong> " + d.docCount;
+                    str += "<br>";
+                    str += "<strong>Word Count:</strong> " + d.wordCount;
                   }
                     div.transition()
                        .duration(200)
@@ -176,12 +204,15 @@ function tree() {
 
         nodeUpdate.select("circle")
                 .attr("r", 4.5)
-                .style("fill", "steelblue");
+                .style("fill", function(d){
+                  var label = d.data.lexdomain.replace(/[.]/g,"-");
+                  $('#'+label).css("display","block");
+                  return _topicColorScale(d.data.lexdomain);
+                });
 
         var nodeExit = node.exit().transition()
                 .attr("transform", function (d) {
-                    return "translate(" + source.y
-						+ "," + source.x + ")";
+                    return "translate(" + source.y + "," + source.x + ")";
                 })
                 .remove();
 
@@ -212,10 +243,22 @@ function tree() {
                     });
                     return words.slice(0, 3).join(", ");
                 })
+                .attr("data-topic", function(d){
+                  return d.data.lexdomain.replace(/[.]/g,"-");
+                })
                 .style("fill-opacity", 1e-6);
 
         nodeUpdate.select("text")
-                .style("fill-opacity", 1);
+                .style("fill-opacity", function(d){
+                  var topic = d.data.lexdomain.replace(/[.]/g,"-");
+                  var status = $("#" + topic).data("status");
+                  if(status === "on"){
+                    $('text[data-topic="' + topic + '"]').show();
+                  } else {
+                    $('text[data-topic="' + topic + '"]').hide();
+                  }
+                  return 1;
+                });
 
         nodeExit.select("text")
                 .style("fill-opacity", 1e-6);
@@ -233,6 +276,23 @@ function tree() {
                 .attr("d", function (d) {
                     var o = {x: source.x0, y: source.y0};
                     return _diagonal({source: o, target: o});
+                })
+                .style("stroke", function(d){
+                  var colorSource = _topicColorScale(d.source.data.lexdomain);
+                  var colorTarget = _topicColorScale(d.target.data.lexdomain);
+                  return colorSource;
+                })
+                .attr("data-topic",function(d){
+                  return d.source.data.lexdomain.replace(/[.]/g,"-");
+                })
+                .attr("opacity", function(d){
+                  var topic = d.source.data.lexdomain.replace(/[.]/g,"-");
+                  var status = $("#" + topic).data("status");
+                  if(status === "on"){
+                    return 1;
+                  } else {
+                    return 0.3;
+                  }
                 });
 
         link.transition()
@@ -300,7 +360,6 @@ function paintSentenceGraph(type) {
   var file = fileInput.files[0];
   reader.onload = function(){
     var corpus = reader.result;
-    console.log(corpus)
     var postData = corpus;
 
     query = encodeURIComponent($("#input_text").val());
@@ -316,7 +375,8 @@ function paintSentenceGraph(type) {
           }).done(function(msg) {
               var root = msg;
               root.data = {};
-              root.count = "NA";
+              root.wordCount = "NA";
+              root.docCount = "NA";
               root.parentId = "NA";
               root.words = null;
               root.data.words = [{lemma: "root"}];
@@ -324,7 +384,7 @@ function paintSentenceGraph(type) {
               root.data.definition = "NA";
               root.data.pos = "NA";
               root.data.children = msg;
-              console.log(root)
+
               paintSentenceGraph.data = root;
 
               switch(type){
@@ -391,7 +451,7 @@ var countLeafElements = (function (){
       counter += 1;
     }
     return counter;
-  }
+  };
 }());
 
 var numberOfLeafs = countLeafElements(input);
@@ -426,7 +486,7 @@ var svg = d3.select("body").append("svg")
       .data(nodes)
       .enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
   node.append("text")
       .attr("dx", function(d) { return d.children ? -8 : 8; })
@@ -434,7 +494,6 @@ var svg = d3.select("body").append("svg")
       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
       .style("-webkit-transform","rotate(0deg)")
       .text(function(d) {
-        console.log(d.words[0])
         return d.words[0].lemma;
       });
 
@@ -449,11 +508,22 @@ $(function() {
   $spinnerContainer.append("<div id='spinner'></div>");
   $("#spinner").append("<div id='loader'></div>");
 
+  _topicDomains.forEach(function(d){
+    var label = d.replace(/[.]/g,"-");
+    $("#color_legend").append('<div class="legend-item" id="'+ label +'"></div>');
+    $("#"+label).data("status","on");
+    $('<div class="color-box"></div>')
+      .css('background-color',_topicColorScale(d))
+      .appendTo("#"+label);
+    $('<p class="legend-label">' + label + '</p>').appendTo("#"+label);
+  });
+
   $("#analyze_button").on("click", function(){
     $spinnerContainer.fadeIn();
     $("body").css({"overflow-y":"scroll"});
     $(".row").hide();
     $("#plot_menu").show();
+    $("#color_legend").show();
 
     d3.select("#graph").remove();
     chart = tree();
@@ -463,7 +533,28 @@ $(function() {
   $("#back_button").on("click",function(){
     clearSentence();
     $("#plot_menu").hide();
+    $("#color_legend").hide();
     $(".row").fadeIn("normal");
+  });
+
+  $(".legend-item").on("click",function(){
+    var self = this;
+    var clicked_div = $(this);
+    var topic = clicked_div.select(".legend-label").text();
+
+    if (clicked_div.data("status") === "off"){
+      clicked_div.data("status","on");
+      $('circle[data-topic="' + topic + '"]').animate({'fill-opacity': 1  },"fast");
+      $('path.link[data-topic="' + topic + '"]').animate({'opacity': 1},"fast");
+      $('text[data-topic="' + topic + '"]').show("fast");
+      clicked_div.css("opacity", 1);
+    } else {
+      clicked_div.data("status","off");
+      $('circle[data-topic="' + topic + '"]').animate({'fill-opacity': 0.3},"fast");
+      $('path.link[data-topic="' + topic + '"]').animate({'opacity': 0.3},"fast");
+      $('text[data-topic="' + topic + '"]').hide("fast");
+      clicked_div.css("opacity", 0.5);
+    }
   });
 
 });
