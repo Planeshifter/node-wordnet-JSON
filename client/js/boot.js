@@ -21,8 +21,7 @@ var _topicColorScale = d3.scale.ordinal()
 
 function tree() {
     var _chart = {};
-
-    var _width = 1600, _height = 800,
+    var _width = 1600, _height = 900,
             _margins = {top: 30, left: 120, right: 30, bottom: 30},
             _svg,
             _nodes,
@@ -40,9 +39,7 @@ function tree() {
     _chart.render = function () {
     	tree.iterator += 1;
         if (!_svg) {
-            _svg = d3.select("body").append("svg")
-                    .attr("height", _height)
-                    .attr("width", _width)
+            _svg = d3.select("#svg_holder").append("svg")
                     .attr("id", "graph")
                     .call( // <-A
                       d3.behavior.zoom() // <-B
@@ -152,6 +149,8 @@ function tree() {
                   if (d.words){
                     var sortable = [];
                     for (var lemma in d.words){
+                      $("span.word:contains('" + lemma + "')")
+                      .css("background-color", _topicColorScale(d.data.lexdomain));
                       sortable.push([lemma, d.words[lemma]]);
                     }
                     var wordStrings = sortable.sort(function(a,b){
@@ -160,7 +159,7 @@ function tree() {
                     wordStrings = wordStrings.map(function(s){
                       return s[0] + "(" + s[1] + ")";
                     });
-                    str += "<strong>Words:</strong> " + wordStrings.join(" , ");
+                    str += "<strong>Words:</strong> " + wordStrings.splice(0,12).join(" , ");
                     str += "<br>";
                     str += "<strong>Definition:</strong> " + d.data.definition + "<br>";
                     str += "<strong>POS</strong>: " + d.data.pos;
@@ -193,6 +192,7 @@ function tree() {
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
+                    $("span.word").css("background-color","transparent");
                 });
 
 
@@ -359,9 +359,10 @@ function paintSentenceGraph(type) {
   var fileInput = document.getElementById('fileInput');
   var file = fileInput.files[0];
   reader.onload = function(){
-    var corpus = reader.result;
-    var postData = corpus;
-
+    var wordnetifyJSON = reader.result;
+    var postData = wordnetifyJSON;
+    corpus = JSON.parse(wordnetifyJSON).corpus;
+    paintDoc(currentDocId);
     query = encodeURIComponent($("#input_text").val());
 
       if(query !== ""){
@@ -419,7 +420,6 @@ function paintSentenceGraph(type) {
         } else {
              switch(type){
                 case "text":
-                console.log(paintSentenceGraph.data)
                   renderText(paintSentenceGraph.data);
                 break;
                 case "graph":
@@ -429,9 +429,8 @@ function paintSentenceGraph(type) {
 
         }
       }
-  }
+  };
   reader.readAsText(file);
-
 }
 
 function clearSentence(){
@@ -501,6 +500,15 @@ var svg = d3.select("body").append("svg")
 }
 
 var docCount = 1;
+var corpus;
+var currentDocId = 0;
+
+function paintDoc(id){
+  var text = corpus[id];
+  var text_html = text.replace(/(\w+)/g,"<span class='word'>$1</span>");
+  $(".documents-area").html(text_html);
+}
+
 $(function() {
   $body = $("body");
   $body.append("<div id='spinnerContainer'></div>");
@@ -524,6 +532,8 @@ $(function() {
     $(".row").hide();
     $("#plot_menu").show();
     $("#color_legend").show();
+    $("#bottom_bar").show();
+    $("#svg_holder").show();
 
     d3.select("#graph").remove();
     chart = tree();
@@ -534,6 +544,8 @@ $(function() {
     clearSentence();
     $("#plot_menu").hide();
     $("#color_legend").hide();
+    $("#bottom_bar").hide();
+    $("#svg_holder").hide();
     $(".row").fadeIn("normal");
   });
 
@@ -554,6 +566,20 @@ $(function() {
       $('path.link[data-topic="' + topic + '"]').animate({'opacity': 0.3},"fast");
       $('text[data-topic="' + topic + '"]').hide("fast");
       clicked_div.css("opacity", 0.5);
+    }
+  });
+
+  $("#next-doc").on("click",function(){
+    if (currentDocId + 1 < corpus.length){
+      currentDocId++;
+      paintDoc(currentDocId);
+    }
+  });
+
+  $("#prev-doc").on("click",function(){
+    if (currentDocId - 1 >= 0){
+      currentDocId--;
+      paintDoc(currentDocId);
     }
   });
 

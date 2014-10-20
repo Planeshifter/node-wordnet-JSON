@@ -36,7 +36,7 @@ http.createServer(function (request, response) {
 
             var POST = JSON.parse(body);
             console.log(POST)
-            var d3Tree = getD3Tree(POST);
+            var d3Tree = getD3Tree(POST.tree);
 		      	var msg = JSON.stringify(d3Tree);
 			  		response.end(msg);
         });

@@ -13,6 +13,17 @@ h1, h2, h3, h4, h5, h6{
 	font-family:'Open Sans', Sans-Serif;
 }
 
+#bottom_bar{
+  height: 30%;
+  width: 85%;
+  padding: 5px;
+  padding-left: 8px;
+  position: fixed;
+  left: 0%;
+  top: 70%;
+  display: none;
+}
+
 #main_menu{
 	background-color: #C0C0C0;
 	padding-left: 40px;
@@ -133,13 +144,27 @@ legend{
 	float: right;
 }
 
+#graph{
+     height: 100%;
+     width: 100%;
+}
+
 #color_legend{
     position:fixed;
-    right:5px;
-    top:5px;
-    width:10%;
+    right:0px;
+    top:0px;
+    width:15%;
+    height: 100%;
     color: black;
     display: none;
+}
+
+#svg_holder{
+  width: 85%;
+  height: 70%;
+  left: 0px;
+  top: 0px;
+  display:none;
 }
 
 #pruning_input{
@@ -160,8 +185,19 @@ legend{
   height: 10px;
 }
 
+#change-doc{
+  float: right;
+  text-align: left;
+  margin: 5px;
+}
+
 #analyze {
 	float: right;
+}
+
+.documents-area{
+  overflow-y: scroll;
+  float: right;
 }
 
 path.link {
@@ -203,4 +239,8 @@ div .legend-item:hover{
 .legend-label{
   display:inline;
   font-size: 12px;
+}
+
+.mytitle{
+  font-size: 20px;
 }
