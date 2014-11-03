@@ -21,7 +21,7 @@ var _topicColorScale = d3.scale.ordinal()
 
 function tree() {
     var _chart = {};
-    var _width = 1600, _height = 900,
+    var _width = 1200, _height = 1200,
             _margins = {top: 30, left: 120, right: 30, bottom: 30},
             _svg,
             _nodes,
@@ -34,18 +34,33 @@ function tree() {
 	    _svg.select(".body").attr("transform", "translate(" +
                                        d3.event.translate +
                           ")scale(" + d3.event.scale + ")");
-   }
 
+      _svg.selectAll(".synsetNode").attr("r",
+        4.5 / d3.event.scale);
+
+      _svg.selectAll(".synsetLabels").style("font-size",
+        (2 / (0.2 * d3.event.scale)) + "px")
+        .attr("x", function (d) {
+            return d.children || d._children ? (-10 / d3.event.scale) : (10 / d3.event.scale);
+        })
+        .attr("dy", 0.35 / d3.event.scale + "em");
+
+      _svg.selectAll(".link").style("stroke-width",
+        1.5 / d3.event.scale);
+    }
+
+    var _zm;
     _chart.render = function () {
     	tree.iterator += 1;
         if (!_svg) {
             _svg = d3.select("#svg_holder").append("svg")
                     .attr("id", "graph")
                     .call( // <-A
-                      d3.behavior.zoom() // <-B
-                      .scaleExtent([1, 8]) // <-C
+                      _zm = d3.behavior.zoom() // <-B
+                      .scaleExtent([1, 6]) // <-C
                       .on("zoom", zoom) // <-D
                     );
+
 
             //add css stylesheet
         var svg_style = _svg.append("defs")
@@ -115,7 +130,7 @@ function tree() {
         var nodeEnter = node.enter().append("svg:g")
                 .attr("class", "node")
                 .attr("transform", function (d) {
-                    return "translate(" + source.y0	  + "," + source.x0 + ")";
+                    return "translate(" + source.y0	/ _zm.scale()  + "," + source.x0 / _zm.scale() + ")";
                 })
                 .on("click", function (d) {
                     toggle(d);
@@ -127,7 +142,7 @@ function tree() {
       .style("opacity", 0);
 
         nodeEnter.append("svg:circle")
-                .attr("r", 1e-6)
+                .attr("r", 1e-6 /  _zm.scale())
                 .attr("class","synsetNode")
                 .style("fill", function(d){
                   return _topicColorScale(d.data.lexdomain);
@@ -159,7 +174,9 @@ function tree() {
                     wordStrings = wordStrings.map(function(s){
                       return s[0] + "(" + s[1] + ")";
                     });
-                    str += "<strong>Words:</strong> " + wordStrings.splice(0,12).join(" , ");
+                    var no_of_words = wordStrings.length;
+                    str += "<strong>Words:</strong> " + wordStrings.splice(0,12).join(", ");
+                    if (no_of_words > 11) str += " ... ";
                     str += "<br>";
                     str += "<strong>Definition:</strong> " + d.data.definition + "<br>";
                     str += "<strong>POS</strong>: " + d.data.pos;
@@ -198,12 +215,13 @@ function tree() {
 
 
         var nodeUpdate = node.transition()
+                .attr("r", 4.5 / _zm.scale())
                 .attr("transform", function (d) {
                     return "translate(" + d.y + "," + d.x + ")";
                 });
 
         nodeUpdate.select("circle")
-                .attr("r", 4.5)
+                .attr("r", 4.5 / _zm.scale())
                 .style("fill", function(d){
                   var label = d.data.lexdomain.replace(/[.]/g,"-");
                   $('#'+label).css("display","block");
@@ -230,13 +248,14 @@ function tree() {
     function renderLabels(nodeEnter, nodeUpdate, nodeExit) {
         nodeEnter.append("svg:text")
                 .attr("x", function (d) {
-                    return d.children || d._children ? -10 : 10;
+                    return d.children || d._children ? (-10 / _zm.scale()) : (10 / _zm.scale());
                 })
                 .attr("class","synsetLabels")
-                .attr("dy", ".35em")
+                .attr("dy", 0.35 / _zm.scale() +"em")
                 .attr("text-anchor", function (d) {
                     return d.children || d._children ? "end" : "start";
                 })
+                .attr("font-size", (2 / (0.2 * _zm.scale()))  + "px")
                 .text(function (d) {
                     var words =  d.data.words.map(function(d){
                       return d.lemma;
@@ -282,6 +301,7 @@ function tree() {
                   var colorTarget = _topicColorScale(d.target.data.lexdomain);
                   return colorSource;
                 })
+                .style("stroke-width", 1.5 / _zm.scale())
                 .attr("data-topic",function(d){
                   return d.source.data.lexdomain.replace(/[.]/g,"-");
                 })
@@ -485,7 +505,9 @@ var svg = d3.select("body").append("svg")
       .data(nodes)
       .enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+      .attr("transform", function(d) {
+        return "translate(" + d.y / _zm.scale() + "," + d.x / _zm.scale()+ ")";
+      });
 
   node.append("text")
       .attr("dx", function(d) { return d.children ? -8 : 8; })
@@ -515,10 +537,11 @@ $(function() {
   $spinnerContainer = $("#spinnerContainer");
   $spinnerContainer.append("<div id='spinner'></div>");
   $("#spinner").append("<div id='loader'></div>");
+  $("#legend_toggle").data("status","on");
 
   _topicDomains.forEach(function(d){
     var label = d.replace(/[.]/g,"-");
-    $("#color_legend").append('<div class="legend-item" id="'+ label +'"></div>');
+    $("#color_legend_holder").append('<div class="legend-item" id="'+ label +'"></div>');
     $("#"+label).data("status","on");
     $('<div class="color-box"></div>')
       .css('background-color',_topicColorScale(d))
@@ -547,6 +570,26 @@ $(function() {
     $("#bottom_bar").hide();
     $("#svg_holder").hide();
     $(".row").fadeIn("normal");
+  });
+
+  $("#legend_toggle").on("click",function(){
+    var $legend_toggle = $(this);
+    var $legend_items = $(".legend-item");
+    if ($legend_toggle.data("status") === "off"){
+      $legend_toggle.data("status","on");
+      $legend_items.data("status","on");
+      $legend_items.css("opacity",1);
+      $('circle[data-topic]').css('fill-opacity',1);
+      $('path.link[data-topic]').css('opacity', 1);
+      $('text[data-topic]').show();
+    } else {
+      $legend_toggle.data("status","off");
+      $legend_items.data("status","off");
+      $legend_items.css("opacity",0.5);
+      $('circle[data-topic]').css('fill-opacity', 0.3);
+      $('path.link[data-topic]').css('opacity', 0.3);
+      $('text[data-topic]').hide();
+    }
   });
 
   $(".legend-item").on("click",function(){
